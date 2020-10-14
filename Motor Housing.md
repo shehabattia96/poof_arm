@@ -19,8 +19,9 @@ The bearings are [626-2RS Ball Bearing 6mm x 19mm x 6mm Double Sealed 180026 Dee
 ## Dimensions
 
 We're going to go with a 40mm x 90mm x 10mm (WxLxD) enclosure.
+Edit: We increased the Length from 90mm to 110mm to account for meshing with the base. Now the housing has 10mm at the top and 10 mm at the bottom for sitting in the base.
 
-The motor uses M3 screws for its housing. 
+The motor uses M3 screws for its housing.
 ![enter image description here](https://imgaz.staticbg.com/images/oaupload/banggood/images/BF/FF/945f6119-da06-4bbb-9252-9b949e934074.jpg)
 
 The gears' PD is 30mm, so that's the space we're going to position between the two gears.
@@ -29,9 +30,11 @@ The bearings are 19mm in diameter
 
 ## CAD files
 
+> Tolerance note: The 3D Printing configuration for an Ultimaker 2+ using a 2.5mm nozzle at 2mm layer height is +0.4mm.
+
 - [Motor housing base](CAD\Motor%20Housing%20Base.SLDPRT)
   - A base that holds the four walls of the housing and can be anchored to other surfaces.
 - [Motor housing](CAD\Motor%20Housing.SLDPRT)
   - The wall that the motor and ball bearings are mounted on.
 
-> Written with [StackEdit](https://stackedit.io/).
+> Written with [StackEdit](https://stackedit.io/)

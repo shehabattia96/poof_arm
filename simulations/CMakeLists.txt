@@ -1,1 +1,1 @@
-SUBDIRS(BulletDemo CinderProject)
+SUBDIRS(BulletDemo BaseCinderApp)

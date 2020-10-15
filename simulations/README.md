@@ -6,6 +6,11 @@ The simulation renders OBJ files and fits Bullet3 collision boxes and physics to
 
 ## High level process
 
+1. A Cinder application consumes arm components (Mesh/OBJ), renders and applies 3D transformations to them in a GUI.
+2. Bullet3 physics engine simulates gravity, joints definitions (revolute, prismatic, fixed or a combination in 3D space), collisions and (hopefully) the soft-body dynamics of the rope tugging on the arm.
+3. All the `objects` types (actuators, sensors) will be controlled by an ESP32 and a sub-pub system, this will be standalone controller code that can be uploaded directly to the ESP32.
+4. The sub-pub server and a central control application will control the robot and collect simulation data on optimal anchoring positions, collisions between arm components, angles where singularities occur, static/dynamic forces and torque.
+
 ## Setup
 
 The following path variables should be set for your user:

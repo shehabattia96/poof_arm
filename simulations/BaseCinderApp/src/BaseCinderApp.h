@@ -1,12 +1,15 @@
-// Author https://github.com/shehabattia96/
+#ifndef BaseCinderApp_h
+#define BaseCinderApp_h
+
 #include "cinder/app/App.h"
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Shader.h"
 
+
 using namespace ci;
 using namespace ci::app;
-using namespace std;
+
 
 /**
  * SimulationObject stores a geom::Source, generates the gl::BatchRef and handles the transformations and drawing of a geom::Source.
@@ -87,16 +90,21 @@ struct SimulationObject {
 };
 
 class BaseCinderApp : public App {
-  public:
-	void setup() override;
-	void mouseDown( MouseEvent event ) override;
-	void update() override;
-	void draw() override;
+	public:
+		void setup() override;
+		void update() override;
+		void draw() override;
+		void resize();
+		std::map<std::string, SimulationObject::type>* getSimulationObjectsMap();
 	
-	CameraPersp	mCam;
-	
-	map<string, SimulationObject::type> mSimulationObjectsMap;
+	protected:
+		CameraPersp	mCam;
+		std::map<std::string, SimulationObject::type> mSimulationObjectsMap;
 };
+
+std::map<std::string, SimulationObject::type>* BaseCinderApp::getSimulationObjectsMap() {
+	return &(this->mSimulationObjectsMap);
+}
 
 void BaseCinderApp::draw()
 { // this is called every frame per second per window
@@ -121,8 +129,12 @@ void BaseCinderApp::setup()
 	// mCam.lookAt( vec3( -15, -5, -2 ), vec3( 0, 0.5f, 0 ) );
 }
 
-void BaseCinderApp::mouseDown( MouseEvent event )
-{}
+void BaseCinderApp::resize()
+{
+	this->mCam.setAspectRatio( getWindowAspectRatio() ); // helps keep the drawn objects' scale when the GUI window is resized.
+}
 
 void BaseCinderApp::update()
 {}
+
+#endif

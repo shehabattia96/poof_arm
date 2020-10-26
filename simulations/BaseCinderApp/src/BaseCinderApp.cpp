@@ -117,7 +117,9 @@ void BaseCinderApp::draw()
 }
 
 void BaseCinderApp::setup()
-{}
+{
+	// mCam.lookAt( vec3( -15, -5, -2 ), vec3( 0, 0.5f, 0 ) );
+}
 
 void BaseCinderApp::mouseDown( MouseEvent event )
 {}

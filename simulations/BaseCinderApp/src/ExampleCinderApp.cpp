@@ -83,7 +83,7 @@ void ExampleCinderApp::setup()
 	// add the SimulationObject to a map so we can retreive it by name
 	mSimulationObjectsMap["cube2"] = cube2;
 
-	// Setup our default camera, looking down the z-axis.
+	// Setup our default camera
 	mCam.lookAt( vec3( -15, -5, -2 ), vec3( 0, 0.5f, 0 ) );
 
 	// Create the interface and give it a name.

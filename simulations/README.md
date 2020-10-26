@@ -2,7 +2,13 @@
 
 ## What we are we simulating?
 
-The simulation renders OBJ files and fits Bullet3 collision boxes and physics to each component of the ball and socket joint. To create a first-approximation specification of which motors we'll need to use and where we will place our anchors on the robot arm, the simulation uses parametric modeling to dynamically change the joint configuration.
+The simulation follows a micro-services architecture, serving an API to add objects or attach controllers.
+
+The simulation GUI renders OBJ files and fits Bullet3 collision boxes and physics to each component of the ball and socket joint.
+
+To create a first-approximation specification of which motors we'll need to use and where we will place our anchors on the robot arm, the simulation uses parametric modeling to dynamically change the joint configuration.
+
+The philosophy behind designing this simulator is to de-couple the controllers, models and physics engine from each other.
 
 ## High level process
 

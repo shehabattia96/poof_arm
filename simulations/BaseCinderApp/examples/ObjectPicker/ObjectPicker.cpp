@@ -7,7 +7,7 @@ void ObjectPicker::draw()
 	BaseCinderApp::draw();
 
 	// Draw the settings widget
-	mParams->draw();
+	settingsSideBarParameters->draw();
 }
 
 void ObjectPicker::setup()
@@ -51,59 +51,59 @@ void ObjectPicker::setup()
 
 	/***** Create Settings Widget *****/
 
-	// Create an ObjectPickerStruct to keep track of the selected object
-	this->objectPicker = ObjectPickerStruct();
+	// Create an SettingsSideBarStruct to keep track of the selected object
+	this->settingsSideBar = SettingsSideBarStruct();
 	// Generate Settings widget
-	updateGuiParams(true);
+	updateSettingsSideBarParameters(true);
 }
 
 /**
- *  updateGuiParams creates a Settings Widget if it doesn't exist and re-populates it with parameters.
+ *  updateSettingsSideBarParameters creates a Settings Widget if it doesn't exist and re-populates it with parameters.
 */
-void ObjectPicker::updateGuiParams(bool updateNamesOfObjectsList) {
+void ObjectPicker::updateSettingsSideBarParameters(bool updateNamesOfObjectsList) {
 	if (updateNamesOfObjectsList) {
-		this->objectPicker.updateNamesOfObjectsList( BaseCinderApp::getSimulationObjectsMap() );
+		this->settingsSideBar.updateNamesOfObjectsList( BaseCinderApp::getSimulationObjectsMap() );
 	}
-	mParams.reset();
+	settingsSideBarParameters.reset();
 
 
 	ivec2 paramWindowSize = ivec2( 200, 400 );
-	mParams = params::InterfaceGl::create( getWindow(), "App parameters", toPixels( paramWindowSize ) );
+	settingsSideBarParameters = params::InterfaceGl::create( getWindow(), "App parameters", toPixels( paramWindowSize ) );
 
 
-	if (this->objectPicker.getSelectedObject() != NULL) {
+	if (this->settingsSideBar.getSelectedObject() != NULL) {
 		
-		mParams->addParam("Cube Size",
-			(function<void( ci::vec3 )>) [this](ci::vec3 scale){this->objectPicker.getSelectedObject()->scale = scale;},
-			(function<ci::vec3 ()>)[this]() -> ci::vec3 {return this->objectPicker.getSelectedObject()->scale;}
+		settingsSideBarParameters->addParam("Cube Size",
+			(function<void( ci::vec3 )>) [this](ci::vec3 scale){this->settingsSideBar.getSelectedObject()->scale = scale;},
+			(function<ci::vec3 ()>)[this]() -> ci::vec3 {return this->settingsSideBar.getSelectedObject()->scale;}
 		);
-		mParams->addParam( "Cube Rotation",
-			(function<void( glm::highp_quat )>) [this](glm::highp_quat rotation){this->objectPicker.getSelectedObject()->rotation = rotation;},
-			(function<glm::highp_quat ()>)[this]() -> glm::highp_quat {return this->objectPicker.getSelectedObject()->rotation;}
+		settingsSideBarParameters->addParam( "Cube Rotation",
+			(function<void( glm::highp_quat )>) [this](glm::highp_quat rotation){this->settingsSideBar.getSelectedObject()->rotation = rotation;},
+			(function<glm::highp_quat ()>)[this]() -> glm::highp_quat {return this->settingsSideBar.getSelectedObject()->rotation;}
 		);
-		mParams->addParam( "Cube Color",
-			(function<void( ci::ColorA )>) [this](ci::ColorA color){this->objectPicker.getSelectedObject()->color = color;},
-			(function<ci::ColorA ()>)[this]() -> ci::ColorA {return this->objectPicker.getSelectedObject()->color;}
+		settingsSideBarParameters->addParam( "Cube Color",
+			(function<void( ci::ColorA )>) [this](ci::ColorA color){this->settingsSideBar.getSelectedObject()->color = color;},
+			(function<ci::ColorA ()>)[this]() -> ci::ColorA {return this->settingsSideBar.getSelectedObject()->color;}
 		);
 		
-		mParams->addSeparator();
+		settingsSideBarParameters->addSeparator();
 
-		mParams->addParam( "Selected Object", objectPicker.namesOfObjects, &objectPicker.selectedObjectIndex )
+		settingsSideBarParameters->addParam( "Selected Object", settingsSideBar.namesOfObjects, &settingsSideBar.selectedObjectIndex )
 			.keyDecr( "[" )
 			.keyIncr( "]" )
 			.updateFn( [this] { 
-				objectPicker.setSelectedObject( BaseCinderApp::getSimulationObjectsMap() );
+				settingsSideBar.setSelectedObject( BaseCinderApp::getSimulationObjectsMap() );
 			} );
 			
 	} else {
-		mParams->addText( "Status Text", "label=`Please add an object and click refresh.`");
+		settingsSideBarParameters->addText( "Status Text", "label=`Please add an object and click refresh.`");
 	}
 
-	mParams->addSeparator();
+	settingsSideBarParameters->addSeparator();
 
-	mParams->addParam( "print fps", &mPrintFps ).keyIncr( "p" );
+	settingsSideBarParameters->addParam( "print fps", &mPrintFps ).keyIncr( "p" );
 
-	mParams->addButton( "Refresh",[&]() { ObjectPicker::updateGuiParams(true); });
+	settingsSideBarParameters->addButton( "Refresh",[&]() { ObjectPicker::updateSettingsSideBarParameters(true); });
 }
 
 void ObjectPicker::update()
@@ -129,8 +129,4 @@ void ObjectPicker::mouseDown( MouseEvent event )
 	cube2->rotation = angleAxis(-1 * modifier + cube2->rotation.w, vec3( cube2->rotation.x -1 * modifier, cube2->rotation.y-1 * modifier, cube2->rotation.z-1 * modifier));
 }
 
-void prepareSettings( App::Settings *settings )
-{
-	settings->setHighDensityDisplayEnabled();
-}
-CINDER_APP( ObjectPicker, RendererGl(RendererGl::Options().msaa(16)), prepareSettings ) // render with anti-aliassing
+CINDER_APP( ObjectPicker, RendererGl(RendererGl::Options().msaa(16)), prepareSettingsSideBar ) // render with anti-aliassing

@@ -6,12 +6,11 @@ bool isInitPhysics = false;
 void PhysxCinder::draw()
 { // this is called every frame per second per window
 	gl::clear(Color(0.5, 0.5, 0.5));
-	BaseCinderApp::draw();
 	
 	gl::setMatrices( mCam );
 
 	// Draw the settings widget
-	// mParams->draw();
+	settingsSideBarParameters->draw();
 	if (isInitPhysics) {
 		stepPhysics();
 		
@@ -51,6 +50,7 @@ void PhysxCinder::draw()
 			}
 		}
 	}
+	BaseCinderApp::draw();
 }
 
 void PhysxCinder::setup()
@@ -72,61 +72,61 @@ void PhysxCinder::setup()
 
 	/***** Create Settings Widget *****/
 
-	// Create an PhysxCinderStruct to keep track of the selected object
-	this->PhysxCinder = PhysxCinderStruct();
+	// Create an SettingsSideBarStruct to keep track of the selected object
+	this->settingsSideBar = SettingsSideBarStruct();
 	// Generate Settings widget
-	updateGuiParams(true);
+	updateSettingsSideBarParameters(true);
 }
 
 /**
- *  updateGuiParams creates a Settings Widget if it doesn't exist and re-populates it with parameters.
+ *  updateSettingsSideBarParameters creates a Settings Widget if it doesn't exist and re-populates it with parameters.
 */
-void PhysxCinder::updateGuiParams(bool updateNamesOfObjectsList)
+void PhysxCinder::updateSettingsSideBarParameters(bool updateNamesOfObjectsList)
 {
 	if (updateNamesOfObjectsList)
 	{
-		this->PhysxCinder.updateNamesOfObjectsList(BaseCinderApp::getSimulationObjectsMap());
+		this->settingsSideBar.updateNamesOfObjectsList(BaseCinderApp::getSimulationObjectsMap());
 	}
-	mParams.reset();
+	settingsSideBarParameters.reset();
 
 	ivec2 paramWindowSize = ivec2(200, 400);
-	mParams = params::InterfaceGl::create(getWindow(), "App parameters", toPixels(paramWindowSize));
+	settingsSideBarParameters = params::InterfaceGl::create(getWindow(), "App parameters", toPixels(paramWindowSize));
 
-	if (this->PhysxCinder.getSelectedObject() != NULL)
+	if (this->settingsSideBar.getSelectedObject() != NULL)
 	{
 
-		mParams->addParam(
+		settingsSideBarParameters->addParam(
 			"Object Size",
-			(function<void(ci::vec3)>)[this](ci::vec3 scale) { this->PhysxCinder.getSelectedObject()->scale = scale; },
-			(function<ci::vec3()>)[this]()->ci::vec3 { return this->PhysxCinder.getSelectedObject()->scale; });
-		mParams->addParam(
+			(function<void(ci::vec3)>)[this](ci::vec3 scale) { this->settingsSideBar.getSelectedObject()->scale = scale; },
+			(function<ci::vec3()>)[this]()->ci::vec3 { return this->settingsSideBar.getSelectedObject()->scale; });
+		settingsSideBarParameters->addParam(
 			"Object Rotation",
-			(function<void(glm::highp_quat)>)[this](glm::highp_quat rotation) { this->PhysxCinder.getSelectedObject()->rotation = rotation; },
-			(function<glm::highp_quat()>)[this]()->glm::highp_quat { return this->PhysxCinder.getSelectedObject()->rotation; });
-		mParams->addParam(
+			(function<void(glm::highp_quat)>)[this](glm::highp_quat rotation) { this->settingsSideBar.getSelectedObject()->rotation = rotation; },
+			(function<glm::highp_quat()>)[this]()->glm::highp_quat { return this->settingsSideBar.getSelectedObject()->rotation; });
+		settingsSideBarParameters->addParam(
 			"Object Color",
-			(function<void(ci::ColorA)>)[this](ci::ColorA color) { this->PhysxCinder.getSelectedObject()->color = color; },
-			(function<ci::ColorA()>)[this]()->ci::ColorA { return this->PhysxCinder.getSelectedObject()->color; });
+			(function<void(ci::ColorA)>)[this](ci::ColorA color) { this->settingsSideBar.getSelectedObject()->color = color; },
+			(function<ci::ColorA()>)[this]()->ci::ColorA { return this->settingsSideBar.getSelectedObject()->color; });
 
-		mParams->addSeparator();
+		settingsSideBarParameters->addSeparator();
 
-		mParams->addParam("Selected Object", PhysxCinder.namesOfObjects, &PhysxCinder.selectedObjectIndex)
+		settingsSideBarParameters->addParam("Selected Object", this->settingsSideBar.namesOfObjects, &this->settingsSideBar.selectedObjectIndex)
 			.keyDecr("[")
 			.keyIncr("]")
-			.updateFn([this] {
-				PhysxCinder.setSelectedObject(BaseCinderApp::getSimulationObjectsMap());
+			.updateFn([this]() {
+				this->settingsSideBar.setSelectedObject(BaseCinderApp::getSimulationObjectsMap());
 			});
 	}
 	else
 	{
-		mParams->addText("Status Text", "label=`Please add an object and click refresh.`");
+		settingsSideBarParameters->addText("Status Text", "label=`Please add an object and click refresh.`");
 	}
 
-	mParams->addSeparator();
+	settingsSideBarParameters->addSeparator();
 
-	mParams->addParam("print fps", &mPrintFps).keyIncr("p");
+	settingsSideBarParameters->addParam("print fps", &mPrintFps).keyIncr("p");
 
-	mParams->addButton("Refresh", [&]() { PhysxCinder::updateGuiParams(true); });
+	settingsSideBarParameters->addButton("Refresh", [&]() { PhysxCinder::updateSettingsSideBarParameters(true); });
 }
 
 void PhysxCinder::update()
@@ -144,8 +144,4 @@ void PhysxCinder::mouseDrag(MouseEvent event)
 	mCameraUi.mouseDrag( event );
 }
 
-void prepareSettings(App::Settings *settings)
-{
-	settings->setHighDensityDisplayEnabled();
-}
-CINDER_APP(PhysxCinder, RendererGl(RendererGl::Options().msaa(16)), prepareSettings) // render with anti-aliassing
+CINDER_APP(PhysxCinder, RendererGl(RendererGl::Options().msaa(16)), prepareSettingsSideBar) // render with anti-aliassing

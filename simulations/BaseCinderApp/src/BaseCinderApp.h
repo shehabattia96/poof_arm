@@ -5,7 +5,7 @@
 #include "cinder/app/RendererGl.h"
 #include "cinder/gl/gl.h"
 #include "cinder/gl/Shader.h"
-
+#include "cinder/params/Params.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -79,18 +79,59 @@ struct SimulationObject {
 
 		float* matrix;
 
+		std::function<void()> preDrawFunction = NULL;
+
 		void draw() {
+			if (preDrawFunction != NULL) preDrawFunction();
 			gl::translate(this->translation);
 			gl::rotate(this->rotation);
 			gl::scale(this->scale);
 			gl::color(this->color);
 			glMultMatrixf(matrix);
 
-
 			this->batchRef->draw();
 		}
 
 };
+
+/**
+ * SettingsSideBarStruct handles displaying a list of SimulationObject(s) created in BaseCinderApp and returning a pointer to the current selectedObject.
+*/
+struct SettingsSideBarStruct {
+	public:
+		SettingsSideBarStruct() {};
+		typedef struct SettingsSideBarStruct type;
+
+		std::vector<std::string> namesOfObjects;
+
+		SimulationObject* selectedObject = NULL;
+
+		int selectedObjectIndex = 0;
+
+		void setSelectedObject(std::map<std::string, SimulationObject::type>* mSimulationObjectsMap) {
+			if (namesOfObjects.size() > 0)
+				this->selectedObject = &mSimulationObjectsMap->at(namesOfObjects[this->selectedObjectIndex]);
+		}
+
+		SimulationObject* getSelectedObject() {
+            return this->selectedObject;
+		}
+
+		void updateNamesOfObjectsList(std::map<std::string, SimulationObject::type>* mSimulationObjectsMap) {
+			this->namesOfObjects.clear();
+			for ( const auto &mSimulationObjectsKeyValuePair : *mSimulationObjectsMap )
+			{
+				std::string objectName = mSimulationObjectsKeyValuePair.first;
+				this->namesOfObjects.push_back(objectName);
+			}
+			setSelectedObject(mSimulationObjectsMap);
+		}
+};
+
+void prepareSettingsSideBar(App::Settings *settings)
+{
+	settings->setHighDensityDisplayEnabled();
+}
 
 class BaseCinderApp : public App {
 	public:
@@ -103,6 +144,7 @@ class BaseCinderApp : public App {
 	protected:
 		CameraPersp	mCam;
 		std::map<std::string, SimulationObject::type> mSimulationObjectsMap;
+		SettingsSideBarStruct::type settingsSideBar;
 };
 
 std::map<std::string, SimulationObject::type>* BaseCinderApp::getSimulationObjectsMap() {

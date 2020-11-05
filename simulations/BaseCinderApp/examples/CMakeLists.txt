@@ -1,2 +1,2 @@
-cmake_minimum_required(VERSION 3.0.0)
-SUBDIRS(ObjectPicker Simple)
+add_subdirectory(ObjectPicker)
+add_subdirectory(Simple)

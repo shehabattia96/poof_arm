@@ -1,1 +1,2 @@
-SUBDIRS(BulletDemo BaseCinderApp)
+add_subdirectory(PhysxCinder)
+add_subdirectory(BaseCinderApp)

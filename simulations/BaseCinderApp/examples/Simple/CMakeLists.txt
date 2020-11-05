@@ -1,6 +1,5 @@
-MESSAGE("Building Simple")  
+message("Building Simple")  
 cmake_minimum_required( VERSION 3.10 FATAL_ERROR )
-set( CMAKE_VERBOSE_MAKEFILE ON )
 
 project( Simple )
 
@@ -16,4 +15,4 @@ ci_make_app(
 	RESOURCES   ${APP_PATH}/resources/cinder_app_icon.ico
 )
 
-MESSAGE("Done building Simple")  
+message("Done building Simple")  

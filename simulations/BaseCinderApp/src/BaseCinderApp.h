@@ -77,11 +77,14 @@ struct SimulationObject {
 		ci::vec3 translation = ci::vec3(0, 0, 0);
 		ci::vec3 scale = ci::vec3(1, 1, 1);
 
+		float* matrix;
+
 		void draw() {
 			gl::translate(this->translation);
 			gl::rotate(this->rotation);
 			gl::scale(this->scale);
 			gl::color(this->color);
+			glMultMatrixf(matrix);
 
 
 			this->batchRef->draw();

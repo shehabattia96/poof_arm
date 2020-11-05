@@ -6,6 +6,8 @@ The largest convienince Base Cinder App provices are the `SimulationObject` and 
 
 ## Getting started
 
+`CINDER_PATH` path variable needs to be set to wherever [https://github.com/cinder/Cinder.git](https://github.com/cinder/Cinder.git) is cloned. This is used by CMake.
+
 Clone the [Simple app](./examples/Simple), which has a usable CMakeLists.txt file, and creates the necessary method overrides and Macros calls to create a Cinder app instance, as well as draw two cubes.
 
 See the [Examples directory](./examples) for other examples.

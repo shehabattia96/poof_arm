@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.0.0)
+
 project(BallAndSocketArm VERSION 0.1.0)
 
-SUBDIRS(simulations)
+# specify the C++ standard
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-include(CPack)
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
+add_subdirectory(simulations)

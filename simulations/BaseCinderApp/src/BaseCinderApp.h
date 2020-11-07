@@ -38,12 +38,14 @@ struct SimulationObject {
 
 	public:
 		SimulationObject() {}
+		virtual ~SimulationObject() {}
 		
 		SimulationObject(geom::SourceMods sourceIn) : source(sourceIn) {
 			this->shader = gl::getStockShader( gl::ShaderDef().lambert().color() );
 			rebuildBatchRef();
 		}
 		SimulationObject(geom::SourceMods sourceIn, gl::GlslProgRef shaderIn) : source(sourceIn), shader(shaderIn) {
+			if (shaderIn == NULL) this->shader = gl::getStockShader( gl::ShaderDef().lambert().color() );
 			rebuildBatchRef();
 		}
 
@@ -77,17 +79,17 @@ struct SimulationObject {
 		ci::vec3 translation = ci::vec3(0, 0, 0);
 		ci::vec3 scale = ci::vec3(1, 1, 1);
 
-		float* matrix;
+		mat4 worldPose;
 
 		std::function<void()> preDrawFunction = NULL;
 
 		void draw() {
 			if (preDrawFunction != NULL) preDrawFunction();
+			gl::multModelMatrix(this->worldPose);
 			gl::translate(this->translation);
 			gl::rotate(this->rotation);
 			gl::scale(this->scale);
 			gl::color(this->color);
-			glMultMatrixf(matrix);
 
 			this->batchRef->draw();
 		}
@@ -108,23 +110,23 @@ struct SettingsSideBarStruct {
 
 		int selectedObjectIndex = 0;
 
-		void setSelectedObject(std::map<std::string, SimulationObject::type>* mSimulationObjectsMap) {
-			if (namesOfObjects.size() > 0)
-				this->selectedObject = &mSimulationObjectsMap->at(namesOfObjects[this->selectedObjectIndex]);
+		void setSelectedObject(std::map<std::string, SimulationObject::type>* simulationObjectsMap) {
+			if (this->namesOfObjects.size() > 0)
+				this->selectedObject = &simulationObjectsMap->at(this->namesOfObjects[this->selectedObjectIndex]);
 		}
 
 		SimulationObject* getSelectedObject() {
             return this->selectedObject;
 		}
 
-		void updateNamesOfObjectsList(std::map<std::string, SimulationObject::type>* mSimulationObjectsMap) {
+		void updateNamesOfObjectsList(std::map<std::string, SimulationObject::type>* simulationObjectsMap) {
 			this->namesOfObjects.clear();
-			for ( const auto &mSimulationObjectsKeyValuePair : *mSimulationObjectsMap )
+			for ( const auto &simulationObjectsKeyValuePair : *simulationObjectsMap )
 			{
-				std::string objectName = mSimulationObjectsKeyValuePair.first;
+				std::string objectName = simulationObjectsKeyValuePair.first;
 				this->namesOfObjects.push_back(objectName);
 			}
-			setSelectedObject(mSimulationObjectsMap);
+			setSelectedObject(simulationObjectsMap);
 		}
 };
 
@@ -138,6 +140,7 @@ class BaseCinderApp : public App {
 		void setup() override;
 		void update() override;
 		void draw() override;
+		void draw(bool clearCanvas);
 		void resize();
 		std::map<std::string, SimulationObject::type>* getSimulationObjectsMap();
 	
@@ -151,10 +154,14 @@ std::map<std::string, SimulationObject::type>* BaseCinderApp::getSimulationObjec
 	return &(this->mSimulationObjectsMap);
 }
 
+void BaseCinderApp::draw(bool skipClearCanvas) {
+	if (!skipClearCanvas) gl::clear( Color( 0.5, 0.5, 0.5 ) ); // this is required
+	BaseCinderApp::draw();
+}
+
+// call gl::clear() if you are calling draw() directly. 
 void BaseCinderApp::draw()
 { // this is called every frame per second per window
-	
-	// gl::clear( Color( 0.5, 0.5, 0.5 ) ); // this is required
 	gl::setMatrices( mCam );
 	
 	for ( const auto &mSimulationObjectsKeyValuePair : mSimulationObjectsMap )
@@ -163,7 +170,7 @@ void BaseCinderApp::draw()
 		gl::ScopedModelMatrix scpModelMtx;
 
 		// grab the SimulationObject and call its draw metod
-		// string objectName = mSimulationObjectsKeyValuePair.first;
+			// string objectName = mSimulationObjectsKeyValuePair.first;
 		SimulationObject object = mSimulationObjectsKeyValuePair.second;
 		object.draw();
 	}

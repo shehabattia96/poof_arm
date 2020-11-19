@@ -29,10 +29,22 @@ set( PHYSX_LIBRARIES
 	# SnippetUtils
 )
 
+message("CMAKE_BUILD_TYPE " ${CMAKE_BUILD_TYPE})
 set(CMAKE_CONFIGURATION_TYPES "debug") #enum configTypes {debug checked profile release}
 if (NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(CMAKE_CONFIGURATION_TYPES "checked") #debug checked profile release
 endif()
+# from physx\samples\compiler\cmake\CMakeLists.txt
+IF(CMAKE_CONFIGURATION_TYPES)
+	SET(CMAKE_CONFIGURATION_TYPES debug checked profile release)
+	SET(CMAKE_CONFIGURATION_TYPES "${CMAKE_CONFIGURATION_TYPES}" CACHE STRING
+		"Reset config to what we need" 
+		FORCE)
+	
+	# Need to define these at least once.	
+	SET(CMAKE_EXE_LINKER_FLAGS_PROFILE "")
+	SET(CMAKE_EXE_LINKER_FLAGS_CHECKED "")	
+ENDIF()
 set(TARGET_BUILD_PLATFORM "windows") # has to match the TARGET_BUILD_PLATFORM in $ENV{PHYSX_PATH}/physix/buildtools/cmake_generate_projects.py
 set(PX_BUILDSNIPPETS OFF CACHE BOOL "Generate the snippets")
 set(PX_BUILDPUBLICSAMPLES OFF CACHE BOOL "Generate the samples projects")
@@ -50,6 +62,8 @@ set(PX_OUTPUT_BIN_DIR ${CMAKE_CURRENT_BINARY_DIR}/externals/physx)
 # Call into PhysX's CMake scripts
 add_subdirectory($ENV{PHYSX_PATH}/compiler/public externals/physx)
 
+SET(CMAKE_BUILD_TYPE "" CACHE PATH "Current build configuration")
+
 #### Build Cinder dependencies and main executable ####
 ci_make_app(
 	SOURCES		${APP_PATH}/PhysxCinder.cpp
@@ -59,19 +73,23 @@ ci_make_app(
 	LIBRARIES ${PHYSX_LIBRARIES} #same as `target_link_libraries(PhysxCinder cinder ${PHYSX_LIBRARIES})`
 )
 
+#### Windows only: Copy the Physx dll files to the PhysxCinder executable####
 
-#### Copy the PhysxCinder executable to the location of the dll files####
+if (TARGET_BUILD_PLATFORM STREQUAL "windows")
+	# References NvidiaBuildOptions.cmake to figure out if system is 32/64 bit
+	IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		SET(LIBPATH_SUFFIX "64")
+	ELSE()
+		SET(LIBPATH_SUFFIX "32")
+	ENDIF()
+	GetPlatformBinName(PLATFORM_BIN_NAME ${LIBPATH_SUFFIX})
+	set(PhysxOutputPath ${PX_OUTPUT_LIB_DIR}/bin/${PLATFORM_BIN_NAME}/)
+	message("Physx Output Path: " ${PhysxOutputPath})
 
-# Refernces NvidiaBuildOptions.cmake to figure out if system is 32/64 bit
-IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
-	SET(LIBPATH_SUFFIX "64")
-ELSE()
-	SET(LIBPATH_SUFFIX "32")
-ENDIF()
-GetPlatformBinName(PLATFORM_BIN_NAME ${LIBPATH_SUFFIX})
-set(RUNTIME_PATH ${PX_OUTPUT_LIB_DIR}/bin/${PLATFORM_BIN_NAME}/)
-message("Physx Output Path: " ${RUNTIME_PATH})
-set_target_properties(PhysxCinder PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${RUNTIME_PATH})
+	# Create a command to run every time target is built:
+	add_custom_command(TARGET PhysxCinder POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${PhysxOutputPath}" "$<TARGET_FILE_DIR:PhysxCinder>/..")
+endif()
 
 
 message("Done building PhysxCinder")  

@@ -31,12 +31,7 @@ void PhysxCinder::createSimulationObject(string objectId, PxRigidActor* actor, g
 	SimulationObject* cubeRef = &simulationObject;
 
 	simulationObject.preDrawFunction = [this, actor,objectId] () {
-			PxShape* shapes[1];
-			const PxU32 nbShapes = actor->getNbShapes();
-			
-			actor->getShapes(shapes, nbShapes);
-
-			PxMat44 pose(PxShapeExt::getGlobalPose(*shapes[0], *actor));
+			PxMat44 pose(actor->getGlobalPose());
 			mat4 mat(pose.column0.x, pose.column0.y, pose.column0.z, pose.column0.w, 
 								pose.column1.x, pose.column1.y, pose.column1.z, pose.column1.w,
 								pose.column2.x, pose.column2.y, pose.column2.z, pose.column2.w,
